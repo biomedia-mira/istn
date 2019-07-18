@@ -52,12 +52,12 @@ from attrdict import AttrDict
 separator = '----------------------------------------'
 
 
-def write_images(writer, phase, image_dict, n_iter, mode2d):
+def write_images(writer, phase, image_dict, n_iter, mode3d):
     for name, image in image_dict.items():
-        if mode2d:
-            writer.add_image('{}/{}'.format(phase, name), mira_th.normalize_to_0_1(image[0, :, :, :]), n_iter)
-        else:
+        if mode3d:
             writer.add_image('{}/{}'.format(phase, name), mira_th.volume_to_batch_image(image), n_iter)
+        else:
+            writer.add_image('{}/{}'.format(phase, name), mira_th.normalize_to_0_1(image[0, :, :, :]), n_iter)
 
 
 def write_values(writer, phase, value_dict, n_iter):
@@ -84,15 +84,15 @@ def set_up_model_and_preprocessing(phase, args):
         print('GPU: ' + str(torch.cuda.get_device_name(int(args.dev))))
 
     if args.transformation == 'affine':
-        if args.mode2d:
-            stn_model = STN2D
-        else:
+        if args.mode3d:
             stn_model = STN3D
-    elif args.transformation == 'bspline':
-        if args.mode2d:
-            stn_model = BSplineSTN2D
         else:
+            stn_model = STN2D
+    elif args.transformation == 'bspline':
+        if args.mode3d:
             stn_model = BSplineSTN3D
+        else:
+            stn_model = BSplineSTN2D
     else:
         raise NotImplementedError('transformation {} not supported'.format(args.transformation))
 
@@ -136,10 +136,10 @@ def set_up_model_and_preprocessing(phase, args):
     else:
         raise NotImplementedError('Loss {} not supported'.format(args.loss))
 
-    if args.mode2d:
-        itn = ITN2D(input_channels=1).to(device)
-    else:
+    if args.mode3d:
         itn = ITN3D(input_channels=1).to(device)
+    else:
+        itn = ITN2D(input_channels=1).to(device)
     stn = stn_model(input_size=config['size'], input_channels=2, device=device).to(device)
     parameters = list(itn.parameters()) + list(stn.parameters())
     optimizer = torch.optim.Adam(parameters, lr=config['learning_rate'])
@@ -303,7 +303,7 @@ def train(args):
 
         train_logger.update_epoch_summary(epoch)
         write_values(writer, 'train', value_dict=train_logger.get_latest_dict(), n_iter=global_step)
-        write_images(writer, 'train', image_dict=images_dict, n_iter=global_step, mode2d=args.mode2d)
+        write_images(writer, 'train', image_dict=images_dict, n_iter=global_step, mode3d=args.mode3d)
 
         # Validation
         if args.val is not None and (epoch == 1 or epoch % config.config['val_interval'] == 0):
@@ -317,7 +317,7 @@ def train(args):
 
             validation_logger.update_epoch_summary(epoch)
             write_values(writer, phase='val', value_dict=validation_logger.get_latest_dict(), n_iter=global_step)
-            write_images(writer, phase='val', image_dict=images_dict, n_iter=global_step, mode2d=args.mode2d)
+            write_images(writer, phase='val', image_dict=images_dict, n_iter=global_step, mode3d=args.mode3d)
 
             print(separator)
             train_logger.print_latest()
@@ -404,7 +404,7 @@ def test(args):
             yaml.dump(test_logger.get_epoch_logger(), outfile)
     test_logger.update_epoch_summary(0)
 
-    if args.refine:
+    if args.no_refine == False:
         refine_config = set_up_model_and_preprocessing('REFINEMENT', args)
         config.itn.eval()
 
@@ -470,7 +470,7 @@ if __name__ == '__main__':
     parser.add_argument('--model', default=model_dir, help='model directory')
 
     # Network args
-    parser.add_argument('--mode2d', dest='mode2d', action='store_true', default=True, help='2D mode', )
+    parser.add_argument('--mode3d', default=False, action='store_true', help='enable 3D mode', )
     parser.add_argument('--config', default="data/synth2d/config.json", help='config file')
 
     parser.add_argument('--loss', default="u",
@@ -478,7 +478,7 @@ if __name__ == '__main__':
                         choices=['u', 's', 'e', 'i'])
     parser.add_argument('--transformation', type=str, default='affine', help='transformation model',
                         choices=['affine', 'bspline'])
-    parser.add_argument('--refine', dest='refine', action='store_true', default=True, help='iterative refinement', )
+    parser.add_argument('--no_refine', default=False, action='store_true', help='disable iterative refinement', )
 
     args = parser.parse_args()
 
@@ -493,13 +493,13 @@ if __name__ == '__main__':
     # EXAMPLE USAGE FOR 2D SYNTHETIC DATA
     #
     # STN-u (unsupervised)
-    # python istn-reg.py --mode2d --config data/synth2d/config.json --transformation affine --loss u --out output/stn-u --model output/stn-u/train/model --refine
+    # python istn-reg.py --config data/synth2d/config.json --transformation affine --loss u --out output/stn-u --model output/stn-u/train/model
     #
     # STN-s (supervised)
-    # python istn-reg.py --mode2d --config data/synth2d/config.json --transformation affine --loss s --out output/stn-s --model output/stn-s/train/model --refine
+    # python istn-reg.py --config data/synth2d/config.json --transformation affine --loss s --out output/stn-s --model output/stn-s/train/model
     #
     # ISTN-e (explicit)
-    # python istn-reg.py --mode2d --config data/synth2d/config.json --transformation affine --loss e --out output/stn-e --model output/stn-e/train/model --refine
+    # python istn-reg.py --config data/synth2d/config.json --transformation affine --loss e --out output/stn-e --model output/stn-e/train/model
     #
     # ISTN-i (implicit)
-    # python istn-reg.py --mode2d --config data/synth2d/config.json --transformation affine --loss i --out output/stn-i --model output/stn-i/train/model --refine
+    # python istn-reg.py --config data/synth2d/config.json --transformation affine --loss i --out output/stn-i --model output/stn-i/train/model
