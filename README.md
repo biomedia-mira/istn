@@ -1,2 +1,8 @@
 # Image-and-Spatial Transformer Networks
-This repo will provide an implementation of our ISTNs for structure-guided image registration presented at MICCAI 2019.
+This is an implementation of the method described in paper
+
+Matthew Lee, Ozan Oktay, Andreas Schuh, Michiel Schaap, Ben Glocker
+Image-and-Spatial Transformer Networks for Structure-guided Image Registration
+In MICCAI 2019
+
+All rights reserved. Copyright 2019
