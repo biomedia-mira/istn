@@ -1,0 +1,11 @@
+{
+  "epochs": 100,
+  "refine": 50,
+  "learning_rate": 0.001,
+  "batch_size": 10,
+  "val_interval": 10,
+  "normalizer_img": "none",
+  "normalizer_seg": "none",
+  "size": [128, 128],
+  "spacing": [1, 1]
+}

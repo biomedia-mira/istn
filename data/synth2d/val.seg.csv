@@ -1,0 +1,11 @@
+src,trg
+data/synth2d/test/V_square_source1_seg.png,data/synth2d/test/V_square_target1_seg.png
+data/synth2d/test/V_square_source10_seg.png,data/synth2d/test/V_square_target10_seg.png
+data/synth2d/test/V_square_source2_seg.png,data/synth2d/test/V_square_target2_seg.png
+data/synth2d/test/V_square_source3_seg.png,data/synth2d/test/V_square_target3_seg.png
+data/synth2d/test/V_square_source4_seg.png,data/synth2d/test/V_square_target4_seg.png
+data/synth2d/test/V_square_source5_seg.png,data/synth2d/test/V_square_target5_seg.png
+data/synth2d/test/V_square_source6_seg.png,data/synth2d/test/V_square_target6_seg.png
+data/synth2d/test/V_square_source7_seg.png,data/synth2d/test/V_square_target7_seg.png
+data/synth2d/test/V_square_source8_seg.png,data/synth2d/test/V_square_target8_seg.png
+data/synth2d/test/V_square_source9_seg.png,data/synth2d/test/V_square_target9_seg.png
