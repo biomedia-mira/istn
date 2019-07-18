@@ -35,8 +35,8 @@ except ModuleNotFoundError:
 
 import SimpleITK as sitk
 
-from pymira.nets.itn import ITN2D
-from pymira.nets.stn import STN2D, BSplineSTN2D
+from pymira.nets.itn import ITN2D, ITN3D
+from pymira.nets.stn import STN2D, BSplineSTN2D, STN3D, BSplineSTN3D
 from pymira.img.processing import zero_mean_unit_var
 from pymira.img.processing import range_matching
 from pymira.img.processing import zero_one
@@ -52,9 +52,12 @@ from attrdict import AttrDict
 separator = '----------------------------------------'
 
 
-def write_images(writer, phase, image_dict, n_iter):
+def write_images(writer, phase, image_dict, n_iter, mode2d):
     for name, image in image_dict.items():
-        writer.add_image('{}/{}'.format(phase, name), mira_th.normalize_to_0_1(image[0, :, :, :]), n_iter)
+        if mode2d:
+            writer.add_image('{}/{}'.format(phase, name), mira_th.normalize_to_0_1(image[0, :, :, :]), n_iter)
+        else:
+            writer.add_image('{}/{}'.format(phase, name), mira_th.volume_to_batch_image(image), n_iter)
 
 
 def write_values(writer, phase, value_dict, n_iter):
@@ -81,9 +84,15 @@ def set_up_model_and_preprocessing(phase, args):
         print('GPU: ' + str(torch.cuda.get_device_name(int(args.dev))))
 
     if args.transformation == 'affine':
-        stn_model = STN2D
+        if args.mode2d:
+            stn_model = STN2D
+        else:
+            stn_model = STN3D
     elif args.transformation == 'bspline':
-        stn_model = BSplineSTN2D
+        if args.mode2d:
+            stn_model = BSplineSTN2D
+        else:
+            stn_model = BSplineSTN3D
     else:
         raise NotImplementedError('transformation {} not supported'.format(args.transformation))
 
@@ -127,12 +136,14 @@ def set_up_model_and_preprocessing(phase, args):
     else:
         raise NotImplementedError('Loss {} not supported'.format(args.loss))
 
-    itn = ITN2D(input_channels=1).to(device)
+    if args.mode2d:
+        itn = ITN2D(input_channels=1).to(device)
+    else:
+        itn = ITN3D(input_channels=1).to(device)
     stn = stn_model(input_size=config['size'], input_channels=2, device=device).to(device)
     parameters = list(itn.parameters()) + list(stn.parameters())
     optimizer = torch.optim.Adam(parameters, lr=config['learning_rate'])
 
-    # TODO: using config.config can be confusing.
     config_dict = {'config': config,
                    'device': device,
                    'normalizer_img': normalizer_img,
@@ -292,7 +303,7 @@ def train(args):
 
         train_logger.update_epoch_summary(epoch)
         write_values(writer, 'train', value_dict=train_logger.get_latest_dict(), n_iter=global_step)
-        write_images(writer, 'train', image_dict=images_dict, n_iter=global_step)
+        write_images(writer, 'train', image_dict=images_dict, n_iter=global_step, mode2d=args.mode2d)
 
         # Validation
         if args.val is not None and (epoch == 1 or epoch % config.config['val_interval'] == 0):
@@ -306,7 +317,7 @@ def train(args):
 
             validation_logger.update_epoch_summary(epoch)
             write_values(writer, phase='val', value_dict=validation_logger.get_latest_dict(), n_iter=global_step)
-            write_images(writer, phase='val', image_dict=images_dict, n_iter=global_step)
+            write_images(writer, phase='val', image_dict=images_dict, n_iter=global_step, mode2d=args.mode2d)
 
             print(separator)
             train_logger.print_latest()
@@ -459,14 +470,15 @@ if __name__ == '__main__':
     parser.add_argument('--model', default=model_dir, help='model directory')
 
     # Network args
+    parser.add_argument('--mode2d', dest='mode2d', action='store_true', default=True, help='2D mode', )
     parser.add_argument('--config', default="data/synth2d/config.json", help='config file')
 
     parser.add_argument('--loss', default="u",
-                        help='Loss type to use, u=unsupervised, s=supervised, e=explicit, i=implicit',
+                        help='loss type, u=unsupervised, s=supervised, e=explicit, i=implicit',
                         choices=['u', 's', 'e', 'i'])
-    parser.add_argument('--transformation', type=str, default='affine', help='Parameterisation of transformation field',
+    parser.add_argument('--transformation', type=str, default='affine', help='transformation model',
                         choices=['affine', 'bspline'])
-    parser.add_argument('--refine', dest='refine', action='store_true', default=True, help='Refine network', )
+    parser.add_argument('--refine', dest='refine', action='store_true', default=True, help='iterative refinement', )
 
     args = parser.parse_args()
 
@@ -478,16 +490,16 @@ if __name__ == '__main__':
     if args.test is not None:
         test(args)
 
-    # USAGE:
+    # EXAMPLE USAGE FOR 2D SYNTHETIC DATA
     #
     # STN-u (unsupervised)
-    # python istn-reg2d.py --config data/synth2d/config.json --transformation affine --loss u --out output/stn-u --model output/stn-u/train/model --refine
+    # python istn-reg.py --mode2d --config data/synth2d/config.json --transformation affine --loss u --out output/stn-u --model output/stn-u/train/model --refine
     #
     # STN-s (supervised)
-    # python istn-reg2d.py --config data/synth2d/config.json --transformation affine --loss s --out output/stn-s --model output/stn-s/train/model --refine
+    # python istn-reg.py --mode2d --config data/synth2d/config.json --transformation affine --loss s --out output/stn-s --model output/stn-s/train/model --refine
     #
     # ISTN-e (explicit)
-    # python istn-reg2d.py --config data/synth2d/config.json --transformation affine --loss e --out output/stn-e --model output/stn-e/train/model --refine
+    # python istn-reg.py --mode2d --config data/synth2d/config.json --transformation affine --loss e --out output/stn-e --model output/stn-e/train/model --refine
     #
     # ISTN-i (implicit)
-    # python istn-reg2d.py --config data/synth2d/config.json --transformation affine --loss i --out output/stn-i --model output/stn-i/train/model --refine
+    # python istn-reg.py --mode2d --config data/synth2d/config.json --transformation affine --loss i --out output/stn-i --model output/stn-i/train/model --refine

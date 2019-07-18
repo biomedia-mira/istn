@@ -1,0 +1,11 @@
+src,trg
+data/synth3d/test/cube-source1_img.nii.gz,data/synth3d/test/cube-target1_img.nii.gz
+data/synth3d/test/cube-source10_img.nii.gz,data/synth3d/test/cube-target10_img.nii.gz
+data/synth3d/test/cube-source2_img.nii.gz,data/synth3d/test/cube-target2_img.nii.gz
+data/synth3d/test/cube-source3_img.nii.gz,data/synth3d/test/cube-target3_img.nii.gz
+data/synth3d/test/cube-source4_img.nii.gz,data/synth3d/test/cube-target4_img.nii.gz
+data/synth3d/test/cube-source5_img.nii.gz,data/synth3d/test/cube-target5_img.nii.gz
+data/synth3d/test/cube-source6_img.nii.gz,data/synth3d/test/cube-target6_img.nii.gz
+data/synth3d/test/cube-source7_img.nii.gz,data/synth3d/test/cube-target7_img.nii.gz
+data/synth3d/test/cube-source8_img.nii.gz,data/synth3d/test/cube-target8_img.nii.gz
+data/synth3d/test/cube-source9_img.nii.gz,data/synth3d/test/cube-target9_img.nii.gz
