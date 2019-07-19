@@ -3,7 +3,7 @@ This is an implementation of the method described in paper
 
 ```
 @inproceedings{lee2010istn,
-    author = {Lee, Matthew C.H. and Oktaz, Ozan and Schuh, Andreas and Schaap, Michiel and Glocker, Ben},
+    author = {Lee, Matthew C.H. and Oktay, Ozan and Schuh, Andreas and Schaap, Michiel and Glocker, Ben},
     title = {Image-and-Spatial Transformer Networks for Structure-guided Image Registration},
     year = {2019},
     book = {International Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI)}
@@ -20,7 +20,7 @@ To install requirements run
 
 `pip install -r requirements.txt`
 
-To run a 2D experirment with and explicit ISTN on the synthetic data run
+To run a 2D experirment with an explicit ISTN on the synthetic data run
 
 `python istn-reg.py --config data/synth2d/config.json --transformation affine --loss e --out output/stn-e --model output/stn-e/train/model`
 
@@ -35,7 +35,7 @@ Tensorboard logs are placed in `{{--out}}/tensorboard`, to fire up tensorboard y
 
 `tensorboard --logdir {{--out}}`
 
-If you installed tensoboard using pip, you may not be able to call it as above as. You can find it's installation location by running
+If you installed tensoboard using pip, you may not be able to call it as above as. You can find its installation location by running
 
 `pip show tensoboard`
 
