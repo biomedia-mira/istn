@@ -1,12 +1,16 @@
 # Image-and-Spatial Transformer Networks
 This is an implementation of the method described in paper
 
-Matthew Lee, Ozan Oktay, Andreas Schuh, Michiel Schaap, Ben Glocker
-Image-and-Spatial Transformer Networks for Structure-guided Image Registration
-In MICCAI 2019
+```
+@inproceedings{lee2010istn,
+    author = {Lee, Matthew C.H. and Oktaz, Ozan and Schuh, Andreas and Schaap, Michiel and Glocker, Ben},
+    title = {Image-and-Spatial Transformer Networks for Structure-guided Image Registration},
+    year = {2019},
+    book = {International Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI)}
+}
+```
 
 All rights reserved. Copyright 2019
-
 
 To unzip the 2D synthetic data, from the parent directory run
 
