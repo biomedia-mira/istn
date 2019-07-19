@@ -503,3 +503,9 @@ if __name__ == '__main__':
     #
     # ISTN-i (implicit)
     # python istn-reg.py --config data/synth2d/config.json --transformation affine --loss i --out output/stn-i --model output/stn-i/train/model
+    #
+    #
+    # EXAMPLE USAGE FOR 3D BRAIN REGISTRATION
+    #
+    # ISTN - i(implicit)
+    # python istn-reg.py --mode3d --loss i --out output3d/istn-i --model output3d/istn-i/train/model --config data/brain3d/config.affine.json --train data/brain3d/train.csv --train_seg data/brain3d/train.seg.csv --train_msk data/brain3d/train.msk.csv --val data/brain3d/val.csv --val_seg data/brain3d/val.seg.csv --val_msk data/brain3d/val.msk.csv --test data/brain3d/test.csv --test_seg data/brain3d/test.seg.csv --test_msk data/brain3d/test.msk.csv
