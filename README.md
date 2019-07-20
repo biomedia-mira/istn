@@ -1,30 +1,36 @@
-# Image-and-Spatial Transformer Networks
-This is an implementation of the method described in paper
+# ISTN
 
+[_Image-and-Spatial Transformer Networks for Structure-guided Image Registration_](http://wp.doc.ic.ac.uk/bglocker/publication/lee2019miccai/)
+
+> We introduce a novel, generic framework, Image-and-Spatial Transformer Networks, to leverage Structures-of-Interest information allowing us to learn new image representations that are optimised for the downstream image registration task. Thanks to these representations we can employ a test-specific, iterative refinement over the transformation parameters which yields highly accurate registration even with very limited training data.
+
+If you make use of the code, please cite the paper in any resulting publications:
 ```
-@inproceedings{lee2010istn,
+@inproceedings{lee2019istn,
     author = {Lee, Matthew C.H. and Oktay, Ozan and Schuh, Andreas and Schaap, Michiel and Glocker, Ben},
     title = {Image-and-Spatial Transformer Networks for Structure-guided Image Registration},
     year = {2019},
-    book = {International Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI)}
+    booktitle = {International Conference on Medical Image Computing and Computer Assisted Intervention (MICCAI)}
 }
 ```
 
-All rights reserved. Copyright 2019
-
-To unzip the 2D synthetic data, from the parent directory run
-
-`unzip data/synth2d/unzip_here.zip -d data/synth2d/`
+## Setup
 
 To install requirements run
 
 `pip install -r requirements.txt`
 
-To run a 2D experirment with an explicit ISTN on the synthetic data run
+## Demo with 2D synthetic data
 
-`python istn-reg.py --config data/synth2d/config.json --transformation affine --loss e --out output/stn-e --model output/stn-e/train/model`
+To unzip the 2D synthetic data, from the parent directory run
 
-`--loss` controls the type of loss used, options are
+`unzip data/synth2d/unzip_here.zip -d data/synth2d/`
+
+To run a 2D experirment with an implicit ISTN on the synthetic data run
+
+`python istn-reg.py --config data/synth2d/config.json --transformation affine --loss i --out output/istn-i --model output/istn-i/train/model`
+
+`--loss` controls the type of training strategy as described in the paper, options are
 
 `u` - unsupervised
 `s` - supervised
@@ -44,3 +50,5 @@ Then you can run
 `python tensorboard/location/main.py --logdir {{--out}}`
 
 Models are saved under `{{--out}}/train`, once training is complete test results are found processed and put into `{{--out}}/test`
+
+All rights reserved. Copyright 2019
