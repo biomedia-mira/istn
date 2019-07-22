@@ -1,4 +1,5 @@
 # ISTN
+![Image-and-Spatial Transformer Networks](istn_overview.PNG)
 
 [_Image-and-Spatial Transformer Networks for Structure-guided Image Registration_](http://wp.doc.ic.ac.uk/bglocker/publication/lee2019miccai/)
 
