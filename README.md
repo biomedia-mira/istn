@@ -1,11 +1,11 @@
 # ISTN
 ![Image-and-Spatial Transformer Networks](istn_overview.PNG)
 
-[_Image-and-Spatial Transformer Networks for Structure-guided Image Registration_](http://wp.doc.ic.ac.uk/bglocker/publication/lee2019miccai/)
+[_Image-and-Spatial Transformer Networks for Structure-guided Image Registration_](http://arxiv.org/abs/1907.09200)
 
 > We introduce a novel, generic, learning-based image registration framework, Image-and-Spatial Transformer Networks, to leverage Structures-of-Interest information allowing us to learn new image representations that are optimised for the downstream registration task. Thanks to these representations we can employ a test-specific, iterative refinement over the transformation parameters which yields highly accurate registration even with very limited training data.
 
-If you make use of the code, please cite the paper in any resulting publications:
+The work has been accepted at MICCAI 2019. If you make use of the code, please cite the paper in any resulting publications:
 ```
 @inproceedings{lee2019istn,
     author = {Lee, Matthew C.H. and Oktay, Ozan and Schuh, Andreas and Schaap, Michiel and Glocker, Ben},
