@@ -129,7 +129,7 @@ class BSplineSTN2D(nn.Module):
     B-spline implementation inspired by https://github.com/airlab-unibas/airlab
     """
 
-    def __init__(self, input_size, input_channels, device, control_point_spacing=(20, 20)):
+    def __init__(self, input_size, input_channels, device, control_point_spacing=(10, 10)):
         super(BSplineSTN2D, self).__init__()
         # Cuda params
         self.device = device
