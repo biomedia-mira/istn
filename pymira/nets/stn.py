@@ -129,12 +129,15 @@ class BSplineSTN2D(nn.Module):
     B-spline implementation inspired by https://github.com/airlab-unibas/airlab
     """
 
-    def __init__(self, input_size, input_channels, device, control_point_spacing=(10, 10)):
+    def __init__(self, input_size, input_channels, device, control_point_spacing=(10, 10), bspline_order=3, max_displacement=0.2):
         super(BSplineSTN2D, self).__init__()
         # Cuda params
         self.device = device
         self.dtype = torch.cuda.float if (self.device == 'cuda') else torch.float
 
+        self.order = bspline_order
+        self.max_disp = max_displacement
+        
         self.input_size = input_size
         self.control_point_spacing = np.array(control_point_spacing)
         self.stride = self.control_point_spacing.astype(dtype=int).tolist()
@@ -163,7 +166,7 @@ class BSplineSTN2D(nn.Module):
         self.cp_grid_shape = [2] + cp_grid_shape.tolist()
 
         self.num_cp_parameters = np.prod(self.cp_grid_shape)
-        self.kernel = self.bspline_kernel().expand(2, *((np.ones(2 + 1, dtype=int) * -1).tolist()))
+        self.kernel = self.bspline_kernel(order=self.order).expand(2, *((np.ones(2 + 1, dtype=int) * -1).tolist()))
         self.kernel_size = np.asarray(self.kernel.size())[2:]
         self.padding = ((self.kernel_size - 1) / 2).astype(dtype=int).tolist()
 
@@ -184,7 +187,7 @@ class BSplineSTN2D(nn.Module):
         mesh_grid = torch.stack([w_s, h_s])
         return mesh_grid.permute(1, 2, 0).to(self.device)  # h x w x 2
 
-    def bspline_kernel(self, order=3):
+    def bspline_kernel(self, order):
         kernel_ones = torch.ones(1, 1, *self.control_point_spacing)
         kernel = kernel_ones
 
@@ -216,11 +219,13 @@ class BSplineSTN2D(nn.Module):
         xs = F.avg_pool2d(F.relu(self.conv2(xs)), 2)
         xs = F.avg_pool2d(F.relu(self.conv3(xs)), 2)
         xs = xs.view(xs.size(0), -1)
-        # cap the displacement field by (-1,1) this still allows for non-diffeomorphic transformations
-        xs = torch.tanh(self.fc(xs)) * 0.2
+        
+        # cap the displacement field by max_disp
+        xs = torch.tanh(self.fc(xs)) * self.max_disp
         xs = xs.view(-1, *self.cp_grid_shape)
 
         self.displacement_field = self.compute_displacement(xs) + self.gen_mesh_grid(h, w).unsqueeze(0)
+        
         # extract first channel for warping
         img = x.narrow(dim=1, start=0, length=1)
 
@@ -447,11 +452,14 @@ class BSplineSTN3D(nn.Module):
     B-spline implementation inspired by https://github.com/airlab-unibas/airlab
     """
 
-    def __init__(self, input_size, input_channels, device, control_point_spacing=(10, 10, 10)):
+    def __init__(self, input_size, input_channels, device, control_point_spacing=(10, 10, 10), bspline_order=3, max_displacement=0.2):
         super(BSplineSTN3D, self).__init__()
         # Cuda params
         self.device = device
         self.dtype = torch.cuda.float if (self.device == 'cuda') else torch.float
+
+        self.order = bspline_order
+        self.max_disp = max_displacement
 
         self.input_size = input_size
         self.control_point_spacing = np.array(control_point_spacing)
@@ -481,7 +489,7 @@ class BSplineSTN3D(nn.Module):
         self.cp_grid_shape = [3] + cp_grid_shape.tolist()
 
         self.num_control_points = np.prod(self.cp_grid_shape)
-        self.kernel = self.bspline_kernel_3d().expand(3, *((np.ones(3 + 1, dtype=int) * -1).tolist()))
+        self.kernel = self.bspline_kernel_3d(order=self.order).expand(3, *((np.ones(3 + 1, dtype=int) * -1).tolist()))
         self.kernel_size = np.asarray(self.kernel.size())[2:]
         self.padding = ((self.kernel_size - 1) / 2).astype(dtype=int).tolist()
 
@@ -503,7 +511,7 @@ class BSplineSTN3D(nn.Module):
         mesh_grid = torch.stack([w_s, h_s, d_s])
         return mesh_grid.permute(1, 2, 3, 0).to(self.device)  # d x h x w x 3
 
-    def bspline_kernel_3d(self, order=3):
+    def bspline_kernel_3d(self, order):
         kernel_ones = torch.ones(1, 1, *self.control_point_spacing)
         kernel = kernel_ones
 
@@ -538,11 +546,13 @@ class BSplineSTN3D(nn.Module):
         xs = F.avg_pool3d(F.relu(self.conv3(xs)), 2)
         xs = xs.view(xs.size(0), -1)
         self.regularisation_loss = 30.0 * torch.mean(torch.abs(xs))
-        # cap the displacement field by (-1,1) this still allows for non-diffeomorphic transformations
-        xs = torch.tanh(self.fc(xs)) * 0.2
+        
+        # cap the displacement field by max_disp
+        xs = torch.tanh(self.fc(xs)) * self.max_disp
         xs = xs.view(-1, *self.cp_grid_shape)
 
         self.displacement_field = self.compute_displacement(xs) + self.gen_3d_mesh_grid(d, h, w).unsqueeze(0)
+        
         # extract first channel for warping
         img = x.narrow(dim=1, start=0, length=1)
 
