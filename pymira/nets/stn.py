@@ -176,9 +176,9 @@ class BSplineSTN2D(nn.Module):
         self.conv2 = nn.Conv2d(8, 16, kernel_size=5).to(self.device)
         self.conv3 = nn.Conv2d(16, 32, kernel_size=5).to(self.device)
         self.fc = nn.Linear(32 * num_features, self.num_cp_parameters).to(self.device)
-		
-		self.fc.weight.data.zero_()
-        self.fc.bias.data.copy_(torch.zeros(self.num_cp_parameters, dtype=self.dtype))
+        
+        # self.fc.weight.data.zero_()
+        # self.fc.bias.data.copy_(torch.zeros(self.num_cp_parameters, dtype=self.dtype))
 
 
     def gen_mesh_grid(self, h, w):
@@ -503,9 +503,9 @@ class BSplineSTN3D(nn.Module):
         self.conv2 = nn.Conv3d(8, 16, kernel_size=5).to(self.device)
         self.conv3 = nn.Conv3d(16, 32, kernel_size=5).to(self.device)
         self.fc = nn.Linear(32 * num_features, self.num_control_points).to(self.device)
-		
-		self.fc.weight.data.zero_()
-        self.fc.bias.data.copy_(torch.zeros(self.num_control_points, dtype=self.dtype))
+        
+        # self.fc.weight.data.zero_()
+        # self.fc.bias.data.copy_(torch.zeros(self.num_control_points, dtype=self.dtype))
 
 
     def gen_3d_mesh_grid(self, d, h, w):
