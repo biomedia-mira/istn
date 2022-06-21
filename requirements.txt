@@ -5,7 +5,7 @@ grpcio==1.22.0
 kiwisolver==1.1.0
 Markdown==3.1.1
 matplotlib==3.0.3
-numpy==1.16.4
+numpy==1.22.0
 pandas==0.24.2
 Pillow==8.1.1
 protobuf==3.9.0
