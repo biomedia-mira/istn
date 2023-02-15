@@ -20,4 +20,4 @@ tensorboardX==1.8
 torch==1.1.0
 torchvision==0.3.0
 tqdm==4.32.2
-Werkzeug==0.15.5
+Werkzeug==2.2.3
